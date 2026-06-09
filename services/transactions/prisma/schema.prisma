@@ -1,0 +1,42 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum TransactionType {
+  PRE_AUTH
+  TOP_UP
+  CAPTURE
+  REFUND
+}
+
+enum TransactionStatus {
+  PENDING
+  SUCCESS
+  FAILED
+}
+
+model Transaction {
+  id                   String            @id @default(uuid()) @map("transaction_id")
+  tabId                String            @map("tab_id")
+  // tab                  Tab               @relation(fields: [tabId], references: [id])
+  idempotencyKey       String            @unique @map("idempotency_key")
+  gatewayTransactionId String?           @map("gateway_transaction_id")
+  type                 TransactionType
+  status               TransactionStatus @default(PENDING)
+  amountPesewas        Int               @map("amount_pesewas")
+  gratuityPesewas      Int               @default(0) @map("gratuity_pesewas")
+  errorMessage         String?           @map("error_message")
+  createdAt            DateTime          @default(now()) @map("created_at")
+
+  @@map("transactions")
+}
