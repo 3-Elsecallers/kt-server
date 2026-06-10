@@ -62,7 +62,7 @@ const updateUser = async (req: Request, res: Response) => {
     const payload = req.body;
 
     const response = await fetch(
-      `${AUTH_WALLET_BASE_URL}/api/categories/${userId}`,
+      `${AUTH_WALLET_BASE_URL}/api/users/${userId}`,
       {
         method: "PUT",
         headers: {
@@ -85,7 +85,7 @@ const deleteUser = async (req: Request, res: Response) => {
     const { userId } = req.params;
 
     const response = await fetch(
-      `${AUTH_WALLET_BASE_URL}/api/categories/${userId}`,
+      `${AUTH_WALLET_BASE_URL}/api/users/${userId}`,
       {
         method: "DELETE",
       },

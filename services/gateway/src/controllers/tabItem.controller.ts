@@ -1,13 +1,13 @@
 import { Request, Response } from "express";
 import "dotenv/config";
 
-const { AUTH_WALLET_BASE_URL } = process.env;
+const { TAB_MANAGEMENT_BASE_URL } = process.env;
 
-const createVenue = async (req: Request, res: Response) => {
+const createTabItem = async (req: Request, res: Response) => {
   try {
     const payload = req.body ?? {};
 
-    const response = await fetch(`${AUTH_WALLET_BASE_URL}/api/venues`, {
+    const response = await fetch(`${TAB_MANAGEMENT_BASE_URL}/api/tabItems`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -25,9 +25,9 @@ const createVenue = async (req: Request, res: Response) => {
   }
 };
 
-const getAllVenues = async (req: Request, res: Response) => {
+const getAllTabItems = async (req: Request, res: Response) => {
   try {
-    const response = await fetch(`${AUTH_WALLET_BASE_URL}/api/venues`);
+    const response = await fetch(`${TAB_MANAGEMENT_BASE_URL}/api/tabItems`);
 
     if (response.status !== 200) {
       return res.sendStatus(response.status);
@@ -42,11 +42,11 @@ const getAllVenues = async (req: Request, res: Response) => {
   }
 };
 
-const getVenueById = async (req: Request, res: Response) => {
+const getTabItemById = async (req: Request, res: Response) => {
   try {
-    const { venueId } = req.params;
+    const { tabItemId } = req.params;
 
-    const response = await fetch(`${AUTH_WALLET_BASE_URL}/api/venues/${venueId}`);
+    const response = await fetch(`${TAB_MANAGEMENT_BASE_URL}/api/tabItems/${tabItemId}`);
     const jsonResponse = await response.json();
 
     return res.status(response.status).json(jsonResponse);
@@ -56,13 +56,27 @@ const getVenueById = async (req: Request, res: Response) => {
   }
 };
 
-const updateVenue = async (req: Request, res: Response) => {
+const getTabItemsByTabId = async (req: Request, res: Response) => {
   try {
-    const { venueId } = req.params;
+    const { tabId } = req.params;
+
+    const response = await fetch(`${TAB_MANAGEMENT_BASE_URL}/api/tabItems/${tabId}/items`);
+    const jsonResponse = await response.json();
+
+    return res.status(response.status).json(jsonResponse);
+  } catch (error) {
+    console.log(error);
+    return res.sendStatus(500);
+  }
+};
+
+const updateTabItem = async (req: Request, res: Response) => {
+  try {
+    const { tabItemId } = req.params;
     const payload = req.body;
 
     const response = await fetch(
-      `${AUTH_WALLET_BASE_URL}/api/venues/${venueId}`,
+      `${TAB_MANAGEMENT_BASE_URL}/api/tabItems/${tabItemId}`,
       {
         method: "PUT",
         headers: {
@@ -80,12 +94,12 @@ const updateVenue = async (req: Request, res: Response) => {
   }
 };
 
-const deleteVenue = async (req: Request, res: Response) => {
+const deleteTabItem = async (req: Request, res: Response) => {
   try {
-    const { venueId } = req.params;
+    const { tabItemId } = req.params;
 
     const response = await fetch(
-      `${AUTH_WALLET_BASE_URL}/api/venues/${venueId}`,
+      `${TAB_MANAGEMENT_BASE_URL}/api/tabItems/${tabItemId}`,
       {
         method: "DELETE",
       },
@@ -100,9 +114,10 @@ const deleteVenue = async (req: Request, res: Response) => {
 };
 
 export default {
-  createVenue,
-  getAllVenues,
-  getVenueById,
-  updateVenue,
-  deleteVenue,
+  createTabItem,
+  getAllTabItems,
+  getTabItemById,
+  getTabItemsByTabId,
+  updateTabItem,
+  deleteTabItem,
 };
