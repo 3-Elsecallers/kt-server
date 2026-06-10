@@ -86,6 +86,36 @@ export const getTabs = async (req: Request, res: Response) => {
 };
 
 /**
+ * Get All Tabs From Specific Venue
+ */
+export const getVenueTabs = async (req: Request, res: Response) => {
+  try {
+    const { venueId } = req.params;
+
+    const tabs = await prisma.tab.findMany({
+      where: {
+        venueId: String(venueId),
+      },
+      orderBy: {
+        openedAt: "desc",
+      },
+    });
+
+    return res.status(200).json({
+      success: true,
+      data: tabs,
+    });
+  } catch (error) {
+    console.error(error);
+
+    return res.status(500).json({
+      success: false,
+      message: "Internal server error",
+    });
+  }
+};
+
+/**
  * Get Tab By ID
  */
 export const getTab = async (req: Request, res: Response) => {

@@ -10,12 +10,14 @@ import {
   closeTab,
   abandonTab,
   reopenTab,
+  getVenueTabs,
 } from "../controllers/tab.controller";
 
 const router = Router();
 
 router.post("/", createTab);
 router.get("/", getTabs);
+router.get("/venue/:venueId", getVenueTabs);
 router.get("/:tabId", getTab);
 router.put("/:tabId", updateTab);
 router.delete("/:tabId", deleteTab);

@@ -42,6 +42,25 @@ const getAllTabs = async (req: Request, res: Response) => {
   }
 };
 
+const getVenueTabs = async (req: Request, res: Response) => {
+  try {
+    const { venueId } = req.params;
+
+    const response = await fetch(`${TAB_MANAGEMENT_BASE_URL}/api/tabs/venue/${venueId}`);
+
+    if (response.status !== 200) {
+      return res.sendStatus(response.status);
+    }
+
+    const jsonResponse = await response.json();
+
+    return res.status(response.status).send(jsonResponse);
+  } catch (error) {
+    console.log(error);
+    return res.sendStatus(500);
+  }
+};
+
 const getTabById = async (req: Request, res: Response) => {
   try {
     const { tabId } = req.params;
@@ -197,6 +216,7 @@ const reopenTab = async (req: Request, res: Response) => {
 export default {
   createTab,
   getAllTabs,
+  getVenueTabs,
   getTabById,
   updateTab,
   deleteTab,

@@ -1,11 +1,17 @@
 import { Router } from "express";
 
 import TabController from "../controllers/tab.controller";
+import Validation from "../validation/validation";
 
 const router = Router();
 
-router.post("/", TabController.createTab);
+router.post("/", Validation.createTabValidation, TabController.createTab);
 router.get("/", TabController.getAllTabs);
+router.get(
+  "/venue/:venueId",
+  Validation.venueIdValidation,
+  TabController.getVenueTabs,
+);
 router.get("/:tabId", TabController.getTabById);
 router.put("/:tabId", TabController.updateTab);
 router.delete("/:tabId", TabController.deleteTab);
