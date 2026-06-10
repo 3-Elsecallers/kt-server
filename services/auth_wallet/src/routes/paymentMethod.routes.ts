@@ -11,6 +11,6 @@ const router = Router();
 router.post("/", createPaymentMethod);
 router.get("/", getPaymentMethods);
 router.get("/:paymentMethodId", getPaymentMethod);
-router.get("/:paymentMethodId", getUserPaymentMethods);
+router.get("/user/:userId", getUserPaymentMethods);
 
 export default router;
