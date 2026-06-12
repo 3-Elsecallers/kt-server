@@ -41,6 +41,17 @@ export const createTabItem = async (req: Request, res: Response) => {
     }
 
     const totalPricePesewas = quantity * unitPricePesewas;
+    const newTotal = totalPricePesewas + tab.runningTotalPesewas;
+
+    // Check if the order overshoots the pre-auth threshold
+    if (newTotal > tab.preAuthAmountPesewas) {
+      // Return 402 Payment Required so POS software forces a step-up authorization hold
+      return res.status(402).json({
+        error: "Pre-auth limit exceeded. Authorize additional top-up funds.",
+        currentBalancePesewas: tab.runningTotalPesewas,
+        attemptedChargePesewas: totalPricePesewas,
+      });
+    }
 
     const item = await prisma.$transaction(async (tx) => {
       const createdItem = await tx.tabItem.create({
@@ -287,10 +298,7 @@ export const deleteTabItem = async (req: Request, res: Response) => {
  * Get Tab Items By Tab ID
  */
 
-export const getTabItemsByTabId = async (
-  req: Request,
-  res: Response
-) => {
+export const getTabItemsByTabId = async (req: Request, res: Response) => {
   try {
     const { tabId } = req.params;
 

@@ -1,12 +1,14 @@
 interface IVenueInput {
   name: string;
   address: string;
+  latLng: string;
   city: string;
   country: string;
+  authorizationAmount: number;
 }
 
 const createVenueValidation = (details: IVenueInput) => {
-  const { name, address, city, country } = details;
+  const { name, address, latLng, city, country, authorizationAmount } = details;
   const errors: Record<string, string> = {};
 
   if (!name || name.trim() === "") {
@@ -17,12 +19,20 @@ const createVenueValidation = (details: IVenueInput) => {
     errors.address = "Address is required";
   }
 
+  if (!latLng || latLng.trim() === "") {
+    errors.latLng = "Lat Lng is required";
+  }
+
   if (!city || city.trim() === "") {
     errors.city = "City is required";
   }
 
   if (!country || country.trim() === "") {
     errors.country = "Country is required";
+  }
+
+  if (!authorizationAmount || authorizationAmount < 1) {
+    errors.authorizationAmount = "Authorization amount is required";
   }
 
   return {
@@ -32,7 +42,7 @@ const createVenueValidation = (details: IVenueInput) => {
 };
 
 const updateVenueValidation = (details: Partial<IVenueInput>) => {
-  const { name, address, city, country } = details;
+  const { name, address, latLng, city, country, authorizationAmount } = details;
   const errors: Record<string, string> = {};
 
   if (name && name.trim() === "") {
@@ -43,12 +53,20 @@ const updateVenueValidation = (details: Partial<IVenueInput>) => {
     errors.address = "Address is required";
   }
 
+  if (latLng && latLng.trim() === "") {
+    errors.latLng = "Lat Lng is required";
+  }
+
   if (city && city.trim() === "") {
     errors.city = "City is required";
   }
 
   if (country && country.trim() === "") {
     errors.country = "Country is required";
+  }
+
+  if (authorizationAmount !== undefined && authorizationAmount <= 0) {
+    errors.authorizationAmount = "Authorization amount must be greater than 0";
   }
 
   return {

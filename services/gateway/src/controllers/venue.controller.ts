@@ -64,7 +64,7 @@ const updateVenue = async (req: Request, res: Response) => {
     const response = await fetch(
       `${AUTH_WALLET_BASE_URL}/api/venues/${venueId}`,
       {
-        method: "PUT",
+        method: "PATCH",
         headers: {
           "Content-Type": "application/json",
         },

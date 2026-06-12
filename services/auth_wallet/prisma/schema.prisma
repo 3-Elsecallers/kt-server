@@ -27,14 +27,16 @@ model User {
 }
 
 model Venue {
-  id        String   @id @default(uuid()) @map("venue_id")
-  name      String   @map("venue_name")
-  address   String
-  city      String
-  country   String
+  id                  String   @id @default(uuid()) @map("venue_id")
+  name                String   @map("venue_name")
+  address             String
+  latLng              String   @map("lat_lng")
+  city                String
+  country             String
+  authorizationAmount Int      @map("authorization_amount")
   // tabs      Tab[] // One-to-many relationship with user tabs
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
+  createdAt           DateTime @default(now()) @map("created_at")
+  updatedAt           DateTime @updatedAt @map("updated_at")
 
   @@map("venues")
 }

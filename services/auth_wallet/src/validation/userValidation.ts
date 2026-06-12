@@ -5,6 +5,14 @@ interface IUserInput {
   phoneNumber: string;
 }
 
+interface IPaymentMethodDetailsInput {
+  venueId: string;
+  gatewayCustomerToken: string;
+  gatewayPaymentToken: string;
+  providerType: string;
+  maskedIdentifier: string;
+}
+
 const createUserValidation = (details: IUserInput) => {
   const { firstName, lastName, email, phoneNumber } = details;
   const errors: Record<string, string> = {};
@@ -49,7 +57,7 @@ const updateUserValidation = (details: Partial<IUserInput>) => {
     errors.firstName = "First name is required";
   }
 
-  if (!lastName || lastName.trim() === "") {
+  if (lastName && lastName.trim() === "") {
     errors.lastName = "Last name is required";
   }
 
@@ -58,7 +66,7 @@ const updateUserValidation = (details: Partial<IUserInput>) => {
   } else {
     const emailRegex =
       /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-    if (email && email.match(emailRegex)) {
+    if (email && !email.match(emailRegex)) {
       errors.email = "Email must be a valid email address";
     }
   }
@@ -77,4 +85,40 @@ const updateUserValidation = (details: Partial<IUserInput>) => {
   };
 };
 
-export { createUserValidation, updateUserValidation };
+const paymentDetailsValidation = (details: IPaymentMethodDetailsInput) => {
+  const {
+    venueId,
+    gatewayCustomerToken,
+    gatewayPaymentToken,
+    providerType,
+    maskedIdentifier,
+  } = details;
+  const errors: Record<string, string> = {};
+
+  if (venueId && venueId.trim() === "") {
+    errors.venueId = "Venue ID is required";
+  }
+
+  if (gatewayCustomerToken && gatewayCustomerToken.trim() === "") {
+    errors.gatewayCustomerToken = "Gateway Customer Token is required";
+  }
+
+  if (gatewayPaymentToken && gatewayPaymentToken.trim() === "") {
+    errors.gatewayPaymentToken = "Gateway Payment Token is required";
+  }
+
+  if (providerType && providerType.trim() === "") {
+    errors.providerType = "Provider Type is required";
+  }
+
+  if (maskedIdentifier && maskedIdentifier.trim() === "") {
+    errors.maskedIdentifier = "Masked Identifier is required";
+  }
+
+  return {
+    valid: Object.keys(errors).length < 1,
+    errors,
+  };
+};
+
+export { createUserValidation, updateUserValidation, paymentDetailsValidation };

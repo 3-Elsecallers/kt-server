@@ -2,15 +2,17 @@ import { Request, Response } from "express";
 import { prisma } from "../db/prisma";
 import {
   createUserValidation,
+  paymentDetailsValidation,
   updateUserValidation,
 } from "../validation/userValidation";
+import { sendCreateTabEvent } from "../kafka/authWalletProducer";
 
 /**
  * Create User
  */
 export const createUser = async (req: Request, res: Response) => {
   try {
-    const { firstName, lastName, email, phoneNumber } = req.body;
+    const { firstName, lastName, email, phoneNumber } = req.body ?? {};
 
     const { valid, errors } = createUserValidation({
       firstName,
@@ -128,7 +130,7 @@ export const getUser = async (req: Request, res: Response) => {
 export const updateUser = async (req: Request, res: Response) => {
   try {
     const { userId } = req.params;
-    const { firstName, lastName, email, phoneNumber } = req.body;
+    const { firstName, lastName, email, phoneNumber } = req.body ?? {};
 
     const { valid, errors } = updateUserValidation({
       firstName,
@@ -223,6 +225,84 @@ export const deleteUser = async (req: Request, res: Response) => {
     return res.status(200).json({
       success: true,
       message: "User deleted successfully",
+    });
+  } catch (error) {
+    console.error(error);
+
+    return res.status(500).json({
+      success: false,
+      message: "Internal server error",
+    });
+  }
+};
+
+export const recordUserPaymentMethod = async (req: Request, res: Response) => {
+  try {
+    const { userId } = req.params;
+    const {
+      venueId,
+      gatewayCustomerToken,
+      gatewayPaymentToken,
+      providerType,
+      maskedIdentifier,
+    } = req.body ?? {};
+
+    const { valid, errors } = paymentDetailsValidation({
+      venueId,
+      gatewayCustomerToken,
+      gatewayPaymentToken,
+      providerType,
+      maskedIdentifier,
+    });
+
+    if (!valid) {
+      return res.status(400).json({
+        success: false,
+        errors,
+      });
+    }
+
+    const user = await prisma.user.findUnique({
+      where: { id: String(userId) },
+    });
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+    const venue = await prisma.venue.findUnique({
+      where: { id: String(venueId) },
+    });
+
+    if (!venue) {
+      return res.status(404).json({
+        success: false,
+        message: "Venue not found",
+      });
+    }
+
+    const paymentMethod = await prisma.paymentMethod.create({
+      data: {
+        userId: String(userId),
+        gatewayCustomerToken,
+        gatewayPaymentToken,
+        providerType,
+        maskedIdentifier,
+      }
+    });
+
+    await sendCreateTabEvent({
+      userId: String(userId),
+      venueId: String(venueId),
+      paymentMethodId: paymentMethod.id,
+      preAuthAmountPesewas: 1
+    });
+
+    return res.status(200).json({
+      success: true,
+      message: "Payment details recorded successfully",
     });
   } catch (error) {
     console.error(error);

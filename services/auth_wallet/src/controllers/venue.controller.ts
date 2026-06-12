@@ -10,13 +10,16 @@ import {
  */
 export const createVenue = async (req: Request, res: Response) => {
   try {
-    const { name, address, city, country } = req.body;
+    const { name, address, latLng, city, country, authorizationAmount } =
+      req.body ?? {};
 
     const { valid, errors } = createVenueValidation({
       name,
       address,
+      latLng,
       city,
       country,
+      authorizationAmount,
     });
 
     if (!valid) {
@@ -30,8 +33,10 @@ export const createVenue = async (req: Request, res: Response) => {
       data: {
         name,
         address,
+        latLng,
         city,
         country,
+        authorizationAmount,
       },
     });
 
@@ -114,13 +119,16 @@ export const getVenue = async (req: Request, res: Response) => {
 export const updateVenue = async (req: Request, res: Response) => {
   try {
     const { venueId } = req.params;
-    const { name, address, city, country } = req.body;
+    const { name, address, latLng, city, country, authorizationAmount } =
+      req.body ?? {};
 
     const { valid, errors } = updateVenueValidation({
       name,
       address,
+      latLng,
       city,
       country,
+      authorizationAmount,
     });
 
     if (!valid) {
@@ -150,8 +158,11 @@ export const updateVenue = async (req: Request, res: Response) => {
       data: {
         name: name ?? existingVenue.name,
         address: address ?? existingVenue.address,
+        latLng: latLng ?? existingVenue.latLng,
         city: city ?? existingVenue.city,
         country: country ?? existingVenue.country,
+        authorizationAmount:
+          authorizationAmount ?? existingVenue.authorizationAmount,
       },
     });
 

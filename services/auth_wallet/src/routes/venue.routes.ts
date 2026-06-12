@@ -12,7 +12,7 @@ const router = Router();
 router.post("/", createVenue);
 router.get("/", getVenues);
 router.get("/:venueId", getVenue);
-router.put("/:venueId", updateVenue);
+router.patch("/:venueId", updateVenue);
 router.delete("/:venueId", deleteVenue);
 
 export default router;

@@ -64,7 +64,7 @@ const updateUser = async (req: Request, res: Response) => {
     const response = await fetch(
       `${AUTH_WALLET_BASE_URL}/api/users/${userId}`,
       {
-        method: "PUT",
+        method: "PATCH",
         headers: {
           "Content-Type": "application/json",
         },
