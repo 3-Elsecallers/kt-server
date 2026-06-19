@@ -18,6 +18,6 @@ app.use("/api/users", userRoutes);
 app.use("/api/venues", venueRoutes);
 app.use("/api/payment-methods", paymentMethodRoutes);
 
-connectProducer()
+connectProducer();
 
 app.listen(PORT, () => console.log(`Server listening on port: ${PORT}`));
