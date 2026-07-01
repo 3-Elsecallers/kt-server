@@ -16,116 +16,150 @@ services:
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
     networks:
       - kt_network
-  auth-wallet:
-    build: ../services/auth_wallet
+  user-service:
+    build: ../services/user-service
     ports:
       - "8081:8081"
     environment:
       PORT: 8081
-      DATABASE_URL: "postgres://brew:brew@kt_auth_wallet_db:5432/kt_auth_db"
-      KAFKA_BROKERS: "kafka:9093"
-      KAFKA_CLIENT_ID: "auth-wallet-service"
-      KAFKA_AUTH_WALLET_TOPIC: "auth-events"
-      KAFKA_CREATE_TAB_TOPIC: "create-tab"
+      DATABASE_URL: "postgres://brew:brew@user-service-db:5432/users_db"
     depends_on:
-      - kt_auth_wallet_db
+      - user-service-db
       - kafka
     networks:
       - kt_network
-  tab-management:
-    build: ../services/tab_management
+  tab-service:
+    build: ../services/tab-service
     ports:
       - "8082:8082"
     environment:
       PORT: 8082
-      DATABASE_URL: "postgres://brew:brew@kt_tab_management_db:5432/kt_tab_db"
-      KAFKA_BROKERS: "kafka:9093"
-      KAFKA_CLIENT_ID: "tab-management-service"
-      KAFKA_TAB_MANAGEMENT_TOPIC: "tab-events"
+      DATABASE_URL: "postgres://brew:brew@tab-service-db:5432/tabs_db"
+      NODE_ENV: "production"
+      KAFKA_BROKERS: "localhost:9092"
+      KAFKA_CLIENT_ID: "tab-service"
+      KAFKA_GROUP_ID: "tab-service-group"
+      KAFKA_TAB_TOPIC: "tab-events"
       KAFKA_CREATE_TAB_TOPIC: "create-tab"
     depends_on:
-      - kt_tab_management_db
+      - tab-service-db
       - kafka
     networks:
       - kt_network
-  transactions:
-    build: ../services/transactions
+  payment-service:
+    build: ../services/payment-service
     ports:
       - "8083:8083"
     environment:
       PORT: 8083
-      DATABASE_URL: "postgres://brew:brew@kt_transactions_db:5432/kt_transactions_db"
-      # KAFKA_BROKERS: "kafka:9093"
-      # KAFKA_CLIENT_ID: "transactions-service"
-      # KAFKA_TAB_MANAGEMENT_TOPIC: "tab-events"
-      # KAFKA_CREATE_TAB_TOPIC: "create-tab"
+      DATABASE_URL: "postgres://brew:brew@payment-service-db:5432/payments_db"
+      PAYSTACK_SECRET_KEY: sk_test_83ecc76d1ca4c619ef5614ab5afe9261db15d5b6
+      FRONTEND_URL: http://localhost:3000
+      KAFKA_BROKERS: "localhost:9092"
+      KAFKA_CLIENT_ID: "payment-service"
+      KAFKA_CREATE_TAB_TOPIC: "create-tab"
     depends_on:
-      - kt_transactions_db
+      - payment-service-db
       - kafka
     networks:
       - kt_network
-  gateway:
-    build: ../services/gateway
+  # transaction-service:
+  #   build: ../services/transaction-service
+  #   ports:
+  #     - "8084:8084"
+  #   environment:
+  #     PORT: 8084
+  #     DATABASE_URL: "postgres://brew:brew@transaction-service-db:5432/transactions_db"
+  #     KAFKA_BROKERS: "kafka:9093"
+  #     KAFKA_CLIENT_ID: "transactions-service"
+  #     KAFKA_TAB_MANAGEMENT_TOPIC: "tab-events"
+  #     KAFKA_CREATE_TAB_TOPIC: "create-tab"
+  #   depends_on:
+  #     - transaction-service-db
+  #     - kafka
+  #   networks:
+  #     - kt_network
+  gateway-service:
+    build: ../services/gateway-service
     ports:
       - "5050:5050"
     environment:
       PORT: 5050
-      AUTH_WALLET_BASE_URL: "http://auth-wallet:8081"
-      TAB_MANAGEMENT_BASE_URL: "http://tab-management:8082"
-      TRANSACTIONS_BASE_URL: "http://transactions:8083"
+      USER_SERVICE_URL: "http://user-service:8081"
+      TAB_SERVICE_URL: "http://tab-service:8082"
+      PAYMENT_SERVICE_URL: "http://payment-service:8083"
+      TRANSACTION_SERVICE_URL: "http://transaction-service:8084"
+      PAYSTACK_SECRET_KEY: sk_test_83ecc76d1ca4c619ef5614ab5afe9261db15d5b6
+      VAT_RATE: 0.15
     depends_on:
-      - auth-wallet
-      - tab-management
-      - transactions
+      - user-service
+      - tab-service
+      - payment-service
+      # - transaction-service
     networks:
       - kt_network
-  kt_auth_wallet_db:
+  user-service-db:
     image: postgres:latest
-    container_name: auth_wallet_db
+    container_name: user_service_db
     restart: always
     environment:
       POSTGRES_USER: brew
       POSTGRES_PASSWORD: brew
-      POSTGRES_DB: kt_auth_db
+      POSTGRES_DB: users_db
     ports:
       - "5432:5432"
     volumes:
-      - kt_auth_wallet_data:/var/lib/postgresql
+      - kt_user_service_data:/var/lib/postgresql
     networks:
       - kt_network
-  kt_tab_management_db:
+  tab-service-db:
     image: postgres:latest
-    container_name: tab_management_db
+    container_name: tab_service_db
     restart: always
     environment:
       POSTGRES_USER: brew
       POSTGRES_PASSWORD: brew
-      POSTGRES_DB: kt_tab_db
+      POSTGRES_DB: tabs_db
     ports:
       - "5433:5432"
     volumes:
-      - kt_tab_management_data:/var/lib/postgresql
+      - kt_tab_service_data:/var/lib/postgresql
     networks:
       - kt_network
-  kt_transactions_db:
+  payment-service-db:
     image: postgres:latest
-    container_name: transactions_db
+    container_name: payment_service_db
     restart: always
     environment:
       POSTGRES_USER: brew
       POSTGRES_PASSWORD: brew
-      POSTGRES_DB: kt_tab_db
+      POSTGRES_DB: payments_db
     ports:
       - "5434:5432"
     volumes:
-      - kt_transactions_data:/var/lib/postgresql
+      - kt_payment_service_data:/var/lib/postgresql
     networks:
       - kt_network
+  # transaction-service-db:
+  #   image: postgres:latest
+  #   container_name: transaction_service_db
+  #   restart: always
+  #   environment:
+  #     POSTGRES_USER: brew
+  #     POSTGRES_PASSWORD: brew
+  #     POSTGRES_DB: transactions_db
+  #   ports:
+  #     - "5435:5432"
+  #   volumes:
+  #     - kt_transaction_service_data:/var/lib/postgresql
+  #   networks:
+  #     - kt_network
 
 volumes:
-  kt_auth_wallet_data:
-  kt_tab_management_data:
-  kt_transactions_data:
+  kt_user_service_data:
+  kt_tab_service_data:
+  kt_payment_service_data:
+  kt_transaction_service_data:
 
 networks:
   kt_network:

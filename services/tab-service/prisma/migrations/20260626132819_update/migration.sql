@@ -1,0 +1,4 @@
+-- AlterTable
+ALTER TABLE "tabs" ALTER COLUMN "pre_auth_amount" SET DATA TYPE DECIMAL(65,30),
+ALTER COLUMN "running_total" SET DEFAULT 0,
+ALTER COLUMN "running_total" SET DATA TYPE DECIMAL(65,30);

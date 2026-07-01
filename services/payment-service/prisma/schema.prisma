@@ -1,0 +1,28 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model PaymentMethod {
+  id                String   @id @default(uuid())
+  userId            String   @map("user_id")
+  customerCode      String   @map("customer_code")
+  authorizationCode String
+  cardType          String?
+  last4             String?
+  expMonth          String?
+  expYear           String?
+  reusable          Boolean  @default(true)
+  createdAt         DateTime @default(now()) @map("created_at")
+  updatedAt         DateTime @updatedAt @map("updated_at")
+  tabs              String[]
+}
